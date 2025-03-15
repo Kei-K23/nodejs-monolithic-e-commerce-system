@@ -1,0 +1,12 @@
+{
+    "watch": [
+        "src",
+        ".env"
+    ],
+    "ext": "ts,js,json,env",
+    "ignore": [
+        "dist",
+        "node_modules"
+    ],
+    "exec": "ts-node -r tsconfig-paths/register src/server.ts"
+}
