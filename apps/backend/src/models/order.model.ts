@@ -1,4 +1,5 @@
 import mongoose, { Types } from 'mongoose';
+import { PAYMENT_STATUS } from './payment.model';
 
 export enum ORDER_STATUS {
   PENDING = 'PENDING',
@@ -6,13 +7,6 @@ export enum ORDER_STATUS {
   SHIPPED = 'SHIPPED',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED',
-}
-
-export enum PAYMENT_STATUS {
-  PENDING = 'PENDING',
-  PAID = 'PAID',
-  FAILED = 'FAILED',
-  REFUNDED = 'REFUNDED',
 }
 
 export interface IOrderItem {
