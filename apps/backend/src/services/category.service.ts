@@ -2,7 +2,7 @@ import { NotFoundError } from '@/exceptions';
 import { ICategory, Category } from '@/models/category.model';
 
 export class CategoryService {
-  static newCategory = async (input: ICategory) => {
+  static create = async (input: ICategory) => {
     const category = Category.build(input);
     await category.save();
 
