@@ -2,7 +2,7 @@ import { NotFoundError } from '@/exceptions/notFoundError';
 import { IUser, User } from '@/models/user.model';
 
 export class UserService {
-  static createUser = async (input: IUser) => {
+  static create = async (input: IUser) => {
     // Build user document
     const user = User.build(input);
     // Save to database
@@ -10,7 +10,7 @@ export class UserService {
     return user;
   };
 
-  static getAllUsers = async () => {
+  static getAll = async () => {
     return await User.find();
   };
 
@@ -22,7 +22,7 @@ export class UserService {
     return user;
   };
 
-  static updateUser = async (id: string, input: Partial<IUser>) => {
+  static update = async (id: string, input: Partial<IUser>) => {
     const user = await User.findByIdAndUpdate(id, input, {
       new: true, // Return updated data
       runValidators: true,
@@ -36,7 +36,7 @@ export class UserService {
     return user;
   };
 
-  static deleteUser = async (id: string) => {
+  static delete = async (id: string) => {
     const user = await User.findByIdAndDelete(id, {
       new: true,
     });

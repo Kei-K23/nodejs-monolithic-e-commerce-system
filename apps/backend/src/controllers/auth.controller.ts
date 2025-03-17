@@ -21,7 +21,7 @@ export default class AuthController {
   static register = async (req: Request, res: Response, next: NextFunction) => {
     try {
       // Register is also create user, so directly call User service
-      const user = await UserService.createUser(req.body);
+      const user = await UserService.create(req.body);
       res.status(201).type('json').json(user);
     } catch (error) {
       logger.error(error);
