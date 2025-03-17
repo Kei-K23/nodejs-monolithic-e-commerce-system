@@ -1,10 +1,18 @@
 import { NotFoundError } from '@/exceptions';
 import { IProduct, Product } from '@/models/product.model';
+import { InventoryService } from './inventory.service';
 
 export class ProductService {
   static newProduct = async (input: IProduct) => {
+    // When product create, also need to create inventory stock for that product
     const product = Product.build(input);
     await product.save();
+
+    // Check inventory stock already exist for this product
+    await InventoryService.updateStockOrCreateNewOne({
+      productId: product.id,
+      stock: product.stockQuantity,
+    });
 
     return product;
   };
@@ -32,6 +40,12 @@ export class ProductService {
       throw new NotFoundError(`Product with ID ${id} not found`);
     }
 
+    // Check inventory stock already exist for this product
+    await InventoryService.updateStockOrCreateNewOne({
+      productId: product.id,
+      stock: product.stockQuantity,
+    });
+
     return product;
   };
 
@@ -44,5 +58,7 @@ export class ProductService {
     if (!product) {
       throw new NotFoundError(`Product with ID ${id} not found`);
     }
+
+    await InventoryService.deleteByProductId(product.id);
   };
 }
