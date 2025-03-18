@@ -12,7 +12,6 @@ export enum ORDER_STATUS {
 export interface IOrderItem {
   product: Types.ObjectId;
   quantity: number;
-  price: number;
 }
 
 export interface IOrder {
@@ -31,33 +30,35 @@ interface OrderModelInterface extends mongoose.Model<OrderDocs> {
   build(attr: IOrder): OrderDocs;
 }
 
-const orderItemSchema = new mongoose.Schema<OrderItemDocs>({
-  product: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Product',
-    required: [true, 'Product ID is required'],
-  },
-  quantity: {
-    type: Number,
-    required: [true, 'Quantity is required'],
-    validate: {
-      validator: async function (value: number): Promise<boolean> {
-        return value >= 0;
+const orderItemSchema = new mongoose.Schema<OrderItemDocs>(
+  {
+    product: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Product',
+      required: [true, 'Product ID is required'],
+    },
+    quantity: {
+      type: Number,
+      required: [true, 'Quantity is required'],
+      validate: {
+        validator: async function (value: number): Promise<boolean> {
+          return value >= 0;
+        },
+        message: 'Invalid quantity',
       },
-      message: 'Invalid quantity',
     },
   },
-  price: {
-    type: Number,
-    required: [true, 'Price is required'],
-    validate: {
-      validator: async function (value: number): Promise<boolean> {
-        return value >= 0;
+  {
+    toJSON: {
+      transform(_doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+
+        return ret;
       },
-      message: 'Invalid price',
     },
   },
-});
+);
 
 const orderSchema = new mongoose.Schema<OrderDocs>(
   {
@@ -88,7 +89,6 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
     },
     orderStatus: {
       type: String,
-      required: [true, 'Order status is required'],
       enum: [
         ORDER_STATUS.PENDING,
         ORDER_STATUS.CANCELLED,
@@ -100,7 +100,6 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
     },
     paymentStatus: {
       type: String,
-      required: [true, 'Payment status is required'],
       enum: [
         PAYMENT_STATUS.PENDING,
         PAYMENT_STATUS.FAILED,
@@ -131,5 +130,8 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
 orderSchema.statics.build = (attr: IOrder) => {
   return new Order(attr);
 };
+
+// Indexes
+orderSchema.index({ user: 1 });
 
 export const Order = mongoose.model<OrderModelInterface>('Order', orderSchema);

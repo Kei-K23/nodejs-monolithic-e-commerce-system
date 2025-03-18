@@ -80,4 +80,19 @@ export class ProductService {
       }
     }
   };
+
+  static checkProductQuantityIsValid = async (id: string, quantity: number) => {
+    const product = await Product.findOne({
+      _id: new mongoose.Types.ObjectId(id),
+      stockQuantity: {
+        $gte: quantity,
+      },
+    }).select(['_id', 'stockQuantity', 'price']);
+
+    if (product) {
+      return product;
+    } else {
+      return null;
+    }
+  };
 }

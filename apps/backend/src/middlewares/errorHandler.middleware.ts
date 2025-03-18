@@ -63,7 +63,6 @@ export const errorHandler = (
   }
 
   logger.error(`[${req.method}] ${req.url} - ${message} - ${error.stack}`);
-
   res.status(statusCode).json({
     success: false,
     message,
