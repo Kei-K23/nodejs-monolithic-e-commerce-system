@@ -16,6 +16,7 @@ const InventorySchema = new mongoose.Schema<InventoryDocs>(
     product: {
       type: mongoose.Schema.ObjectId,
       ref: 'Product',
+      unique: true,
       required: [true, 'Product ID is required'],
     },
     stock: {

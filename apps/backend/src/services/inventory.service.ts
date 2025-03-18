@@ -1,19 +1,26 @@
 import { NotFoundError } from '@/exceptions';
-import { IInventory, Inventory } from '@/models/inventory.model';
+import { Inventory } from '@/models/inventory.model';
+import { Product } from '@/models/product.model';
+import { InputInventory } from '@/schemas/inventory.schema';
 import mongoose from 'mongoose';
 
 export class InventoryService {
-  static create = async (input: IInventory) => {
-    const inventory = Inventory.build(input);
-    await inventory.save();
-
+  static getOneById = async (id: string) => {
+    const inventory = await Inventory.findById(id).populate('product');
+    if (!inventory) {
+      throw new NotFoundError(`Inventory with ID ${id} not found`);
+    }
     return inventory;
   };
 
-  static getOneById = async (id: string) => {
-    const inventory = await Inventory.findById(id);
+  static getOneByProductId = async (productId: string) => {
+    const inventory = await Inventory.findOne({ product: productId }).populate(
+      'product',
+    );
     if (!inventory) {
-      throw new NotFoundError(`Inventory with ID ${id} not found`);
+      throw new NotFoundError(
+        `Inventory with product ID ${productId} not found`,
+      );
     }
     return inventory;
   };
@@ -22,15 +29,38 @@ export class InventoryService {
     return await Inventory.find();
   };
 
-  static update = async (id: string, input: Partial<IInventory>) => {
-    const inventory = await Inventory.findByIdAndUpdate(id, input, {
-      new: true, // Return updated data
-      runValidators: true,
-      context: 'query',
-    });
+  static update = async (id: string, input: InputInventory) => {
+    const inventory = await Inventory.findByIdAndUpdate(
+      id,
+      {
+        ...input,
+        product: new mongoose.Types.ObjectId(input.productId),
+      },
+      {
+        new: true, // Return updated data
+        runValidators: true,
+        context: 'query',
+      },
+    );
 
     if (!inventory) {
       throw new NotFoundError(`Inventory with ID ${id} not found`);
+    }
+
+    // Must update the product stock quantity here to be sync between inventory and product
+    const product = await Product.findByIdAndUpdate(
+      input.productId,
+      {
+        stockQuantity: input.stock,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!product) {
+      throw new NotFoundError('Product not found');
     }
 
     return inventory;
@@ -44,6 +74,22 @@ export class InventoryService {
 
     if (!inventory) {
       throw new NotFoundError(`Inventory with ID ${id} not found`);
+    }
+
+    // When inventory delete, also update the related product stock to 0
+    const product = await Product.findByIdAndUpdate(
+      inventory.product,
+      {
+        stockQuantity: 0,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!product) {
+      throw new NotFoundError('Product not found');
     }
   };
 
@@ -60,6 +106,22 @@ export class InventoryService {
       throw new NotFoundError(
         `Inventory with product ID ${productId} not found`,
       );
+    }
+
+    // When inventory delete, also update the related product stock to 0
+    const product = await Product.findByIdAndUpdate(
+      inventory.product,
+      {
+        stockQuantity: 0,
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    if (!product) {
+      throw new NotFoundError('Product not found');
     }
   };
 
@@ -83,5 +145,15 @@ export class InventoryService {
       inventory.stock = stock;
       await inventory.save();
     }
+
+    // Must update the product stock quantity here to be sync between inventory and product
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      throw new NotFoundError('Product not found');
+    }
+
+    product.stockQuantity = stock;
+    await product.save();
   };
 }

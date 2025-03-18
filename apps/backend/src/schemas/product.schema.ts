@@ -15,7 +15,7 @@ export const createProductSchema = z.object({
         .positive(),
       categoryId: z
         .string({ required_error: 'Category ID is required' })
-        .regex(/^[0-9a-fA-F]{24}$/, 'Invalid product ID'),
+        .regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID'),
     })
     .strict(),
 });
@@ -41,7 +41,7 @@ export const updateProductSchema = z.object({
         .optional(),
       categoryId: z
         .string({ required_error: 'Category ID is required' })
-        .regex(/^[0-9a-fA-F]{24}$/, 'Invalid product ID')
+        .regex(/^[0-9a-fA-F]{24}$/, 'Invalid category ID')
         .optional(),
     })
     .strict(),

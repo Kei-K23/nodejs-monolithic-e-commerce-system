@@ -3,6 +3,7 @@ import { Product } from '@/models/product.model';
 import { InventoryService } from './inventory.service';
 import mongoose from 'mongoose';
 import { InputProduct } from '@/schemas/product.schema';
+import { Inventory } from '@/models/inventory.model';
 
 export class ProductService {
   static create = async (input: InputProduct) => {
@@ -69,6 +70,14 @@ export class ProductService {
       throw new NotFoundError(`Product with ID ${id} not found`);
     }
 
-    await InventoryService.deleteByProductId(product.id);
+    const inventory = await InventoryService.getOneByProductId(product.id);
+    if (inventory) {
+      const deletedInventory = await Inventory.findByIdAndDelete(inventory.id, {
+        new: true,
+      });
+      if (!deletedInventory) {
+        throw new NotFoundError(`Inventory not found`);
+      }
+    }
   };
 }
