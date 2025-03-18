@@ -3,17 +3,17 @@ import { asyncHandler, checkJWT, validate } from '@/middlewares';
 import { checkRoles } from '@/middlewares/checkRoles.middleware';
 import { USER_ROLE } from '@/models/user.model';
 import {
-  createUserSchema,
-  getUserByIdSchema,
-  updateUserSchema,
-} from '@/schemas/user.schema';
+  createCategorySchema,
+  getCategoryByIdSchema,
+  updateCategorySchema,
+} from '@/schemas/category.schema';
 import { Router } from 'express';
 
 const router = Router();
 
 router.post(
   '/',
-  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(createUserSchema)],
+  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(createCategorySchema)],
   asyncHandler(CategoryController.newCategory),
 );
 router.get(
@@ -23,8 +23,7 @@ router.get(
 );
 router.get(
   '/:id',
-  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getUserByIdSchema)],
-  validate(getUserByIdSchema),
+  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getCategoryByIdSchema)],
   asyncHandler(CategoryController.getOneById),
 );
 router.patch(
@@ -32,14 +31,14 @@ router.patch(
   [
     checkJWT,
     checkRoles([USER_ROLE.ADMIN]),
-    validate(getUserByIdSchema),
-    validate(updateUserSchema),
+    validate(getCategoryByIdSchema),
+    validate(updateCategorySchema),
   ],
   asyncHandler(CategoryController.editCategory),
 );
 router.delete(
   '/:id',
-  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getUserByIdSchema)],
+  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getCategoryByIdSchema)],
   asyncHandler(CategoryController.deleteCategory),
 );
 

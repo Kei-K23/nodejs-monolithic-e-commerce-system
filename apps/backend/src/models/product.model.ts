@@ -77,6 +77,10 @@ const ProductSchema = new mongoose.Schema<ProductDocs>(
   },
 );
 
+ProductSchema.statics.build = (attr: IProduct) => {
+  return new Product(attr);
+};
+
 export const Product = mongoose.model<ProductDocs, ProductModelInterface>(
   'Product',
   ProductSchema,

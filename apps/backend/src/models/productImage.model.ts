@@ -37,6 +37,10 @@ const productImageSchema = new mongoose.Schema<ProductImageDocs>(
   },
 );
 
+productImageSchema.statics.build = (attr: IProductImage) => {
+  return new ProductImage(attr);
+};
+
 export const ProductImage = mongoose.model<
   ProductImageDocs,
   ProductModelInterface

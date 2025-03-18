@@ -55,6 +55,10 @@ const CouponSchema = new mongoose.Schema<CouponDocs>(
   },
 );
 
+CouponSchema.statics.build = (attr: ICoupon) => {
+  return new Coupon(attr);
+};
+
 export const Coupon = mongoose.model<CouponDocs, CouponModelInterface>(
   'Coupon',
   CouponSchema,

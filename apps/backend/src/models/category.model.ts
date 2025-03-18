@@ -49,6 +49,10 @@ const categorySchema = new mongoose.Schema<CategoryDocs>(
   },
 );
 
+categorySchema.statics.build = (attr: ICategory) => {
+  return new Category(attr);
+};
+
 export const Category = mongoose.model<CategoryDocs, CategoryModelInterface>(
   'Category',
   categorySchema,

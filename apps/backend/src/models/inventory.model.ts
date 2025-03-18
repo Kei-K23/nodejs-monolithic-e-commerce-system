@@ -43,6 +43,10 @@ const InventorySchema = new mongoose.Schema<InventoryDocs>(
   },
 );
 
+InventorySchema.statics.build = (attr: IInventory) => {
+  return new Inventory(attr);
+};
+
 export const Inventory = mongoose.model<InventoryDocs, InventoryModelInterface>(
   'Inventory',
   InventorySchema,

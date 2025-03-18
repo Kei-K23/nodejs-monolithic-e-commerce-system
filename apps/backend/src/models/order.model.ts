@@ -128,4 +128,8 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
   },
 );
 
+orderSchema.statics.build = (attr: IOrder) => {
+  return new Order(attr);
+};
+
 export const Order = mongoose.model<OrderModelInterface>('Order', orderSchema);

@@ -82,6 +82,10 @@ const ShippingSchema = new mongoose.Schema<ShippingDocs>(
   },
 );
 
+ShippingSchema.statics.build = (attr: IShipping) => {
+  return new Shipping(attr);
+};
+
 export const Shipping = mongoose.model<ShippingDocs, ShippingModelInterface>(
   'Shipping',
   ShippingSchema,

@@ -51,11 +51,22 @@ export const errorHandler = (
     statusCode = 400;
     message = `Duplicate field value entered: ${(error as any).keyValue}`;
   }
+  // Handle MongoDb general error
+  else if (error instanceof mongoose.Error) {
+    statusCode = 500;
+    message = error.message;
+    return res.status(statusCode).json({
+      success: false,
+      message,
+      details: error.stack,
+    });
+  }
 
-  logger.error(`[${req.method}] ${req.url} - ${message}`);
+  logger.error(`[${req.method}] ${req.url} - ${message} - ${error.stack}`);
 
   res.status(statusCode).json({
     success: false,
     message,
+    details: error.stack,
   });
 };

@@ -56,6 +56,10 @@ const ReviewSchema = new mongoose.Schema<ReviewDocs>(
   },
 );
 
+ReviewSchema.statics.build = (attr: IReview) => {
+  return new Review(attr);
+};
+
 export const Review = mongoose.model<ReviewDocs, ReviewModelInterface>(
   'Review',
   ReviewSchema,

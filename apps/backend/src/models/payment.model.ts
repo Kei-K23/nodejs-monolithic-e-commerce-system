@@ -93,6 +93,10 @@ const PaymentSchema = new mongoose.Schema<PaymentDocs>(
   },
 );
 
+PaymentSchema.statics.build = (attr: IPayment) => {
+  return new Payment(attr);
+};
+
 export const Payment = mongoose.model<PaymentDocs, PaymentModelInterface>(
   'Payment',
   PaymentSchema,

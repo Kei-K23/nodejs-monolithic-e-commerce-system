@@ -24,7 +24,6 @@ router.get(
 router.get(
   '/:id',
   [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getUserByIdSchema)],
-  validate(getUserByIdSchema),
   asyncHandler(UserController.getOneById),
 );
 router.patch(
