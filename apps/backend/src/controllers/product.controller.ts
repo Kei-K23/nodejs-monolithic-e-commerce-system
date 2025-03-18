@@ -1,17 +1,17 @@
 import logger from '@/config/logger.config';
-import { CategoryService } from '@/services/category.service';
+import { ProductService } from '@/services/product.service';
 import { NextFunction, Request, Response } from 'express';
 
-export default class CategoryController {
-  static newCategory = async (
+export default class ProductController {
+  static newProduct = async (
     req: Request,
     res: Response,
     next: NextFunction,
   ) => {
     try {
-      const category = await CategoryService.create(req.body);
+      const product = await ProductService.create(req.body);
 
-      res.status(201).type('json').json(category);
+      res.status(201).type('json').json(product);
     } catch (error) {
       logger.error(error);
       next(error);
@@ -20,8 +20,8 @@ export default class CategoryController {
 
   static listAll = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const categories = await CategoryService.getAll();
-      res.status(200).type('json').json(categories);
+      const products = await ProductService.getAll();
+      res.status(200).type('json').json(products);
     } catch (error) {
       logger.error(error);
       next(error);
@@ -34,35 +34,35 @@ export default class CategoryController {
     next: NextFunction,
   ) => {
     try {
-      const category = await CategoryService.getOneById(req.params.id);
-      res.status(200).type('json').json(category);
+      const product = await ProductService.getOneById(req.params.id);
+      res.status(200).type('json').json(product);
     } catch (error) {
       logger.error(error);
       next(error);
     }
   };
 
-  static editCategory = async (
+  static editProduct = async (
     req: Request,
     res: Response,
     next: NextFunction,
   ) => {
     try {
-      const category = await CategoryService.update(req.params.id, req.body);
-      res.status(200).type('json').json(category);
+      const product = await ProductService.update(req.params.id, req.body);
+      res.status(200).type('json').json(product);
     } catch (error) {
       logger.error(error);
       next(error);
     }
   };
 
-  static deleteCategory = async (
+  static deleteProduct = async (
     req: Request,
     res: Response,
     next: NextFunction,
   ) => {
     try {
-      await CategoryService.delete(req.params.id);
+      await ProductService.delete(req.params.id);
       res.status(204).type('json').send();
     } catch (error) {
       logger.error(error);

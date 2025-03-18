@@ -1,11 +1,16 @@
 import { NotFoundError } from '@/exceptions';
-import { IProduct, Product } from '@/models/product.model';
+import { Product } from '@/models/product.model';
 import { InventoryService } from './inventory.service';
+import mongoose from 'mongoose';
+import { InputProduct } from '@/schemas/product.schema';
 
 export class ProductService {
-  static newProduct = async (input: IProduct) => {
+  static create = async (input: InputProduct) => {
     // When product create, also need to create inventory stock for that product
-    const product = Product.build(input);
+    const product = Product.build({
+      ...input,
+      category: new mongoose.Types.ObjectId(input.categoryId),
+    });
     await product.save();
 
     // Check inventory stock already exist for this product
@@ -29,8 +34,13 @@ export class ProductService {
     return await Product.find();
   };
 
-  static update = async (id: string, input: Partial<IProduct>) => {
-    const product = await Product.findByIdAndUpdate(id, input, {
+  static update = async (id: string, input: Partial<InputProduct>) => {
+    const updateData: Record<string, any> = { ...input };
+    if (input?.categoryId) {
+      updateData.category = new mongoose.Types.ObjectId(input.categoryId);
+    }
+
+    const product = await Product.findByIdAndUpdate(id, updateData, {
       new: true, // Return updated data
       runValidators: true,
       context: 'query',

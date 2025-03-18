@@ -22,7 +22,7 @@ const ProductSchema = new mongoose.Schema<ProductDocs>(
       required: [true, 'Product name is required'],
       trim: true,
       minlength: [3, 'Product name too short'],
-      maxlength: [150, 'Product name too long'],
+      maxlength: [255, 'Product name too long'],
       validate: {
         validator: async function (value: string): Promise<boolean> {
           const doc = await Product.findOne({ name: value });
@@ -35,7 +35,6 @@ const ProductSchema = new mongoose.Schema<ProductDocs>(
     description: {
       type: String,
       minlength: [10, 'Product description too short'],
-      maxlength: [255, 'Product description too long'],
     },
     price: {
       type: Number,

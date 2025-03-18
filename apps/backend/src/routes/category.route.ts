@@ -18,12 +18,16 @@ router.post(
 );
 router.get(
   '/',
-  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  [checkJWT, checkRoles([USER_ROLE.ADMIN, USER_ROLE.USER])],
   asyncHandler(CategoryController.listAll),
 );
 router.get(
   '/:id',
-  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getCategoryByIdSchema)],
+  [
+    checkJWT,
+    checkRoles([USER_ROLE.ADMIN, USER_ROLE.USER]),
+    validate(getCategoryByIdSchema),
+  ],
   asyncHandler(CategoryController.getOneById),
 );
 router.patch(

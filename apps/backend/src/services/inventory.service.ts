@@ -3,7 +3,7 @@ import { IInventory, Inventory } from '@/models/inventory.model';
 import mongoose from 'mongoose';
 
 export class InventoryService {
-  static newInventory = async (input: IInventory) => {
+  static create = async (input: IInventory) => {
     const inventory = Inventory.build(input);
     await inventory.save();
 

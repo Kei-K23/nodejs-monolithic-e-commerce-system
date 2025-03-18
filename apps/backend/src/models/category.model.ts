@@ -19,7 +19,7 @@ const categorySchema = new mongoose.Schema<CategoryDocs>(
       required: [true, 'Category name is required'],
       trim: true,
       minlength: [3, 'Category name too short'],
-      maxlength: [150, 'Category name too long'],
+      maxlength: [255, 'Category name too long'],
       validate: {
         validator: async function (value: string): Promise<boolean> {
           const doc = await Category.findOne({ name: value });
@@ -32,7 +32,6 @@ const categorySchema = new mongoose.Schema<CategoryDocs>(
     description: {
       type: String,
       minlength: [10, 'Category description too short'],
-      maxlength: [255, 'Category description too long'],
     },
   },
   {
