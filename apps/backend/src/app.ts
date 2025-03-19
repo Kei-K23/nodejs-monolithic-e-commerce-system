@@ -17,7 +17,13 @@ app.use(cors());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes,
-    limit: 100, // 15 minutes - 100 request from same IP address
+    limit: 10, // 15 minutes - 100 request from same IP address
+    standardHeaders: true,
+    message: {
+      success: false,
+      message: 'Too Many Requests',
+      details: 'You have exceeded the request limit. Please try again later.',
+    },
   }),
 );
 

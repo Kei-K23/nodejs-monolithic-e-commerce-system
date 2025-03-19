@@ -1,8 +1,6 @@
 import logger from '@/config/logger.config';
 import { ClientError } from '@/exceptions';
 import { NextFunction, Request, Response } from 'express';
-import path from 'path';
-import fs from 'fs';
 import { uploadLocalFile } from '@/utils/upload';
 import { ProductImageService } from '@/services/productImage.service';
 import { requestProductImageSchema } from '@/schemas/productImage.schema';
