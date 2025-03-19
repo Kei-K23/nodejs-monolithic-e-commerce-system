@@ -14,7 +14,7 @@ export interface IUser {
   role: USER_ROLE;
 }
 
-interface UserDocs extends IUser, mongoose.Document {
+export interface UserDocs extends IUser, mongoose.Document {
   verifyPassword(plainPassword: string): Promise<boolean>;
 }
 

@@ -1,10 +1,9 @@
-import { IUser } from '@/models/user.model';
-import { Request } from 'express';
+import { UserDocs } from '@/models/user.model';
 
 declare global {
   namespace Express {
     interface Request {
-      user?: Omit<IUser, 'password'>;
+      user?: Omit<UserDocs, 'password'>;
     }
   }
 }

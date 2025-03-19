@@ -17,7 +17,7 @@ app.use(cors());
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes,
-    limit: 10, // 15 minutes - 100 request from same IP address
+    limit: 100, // 15 minutes - 100 request from same IP address
     standardHeaders: true,
     message: {
       success: false,

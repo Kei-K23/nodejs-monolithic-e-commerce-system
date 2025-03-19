@@ -29,6 +29,7 @@ const ReviewSchema = new mongoose.Schema<ReviewDocs>(
       type: String,
       required: [true, 'Review is required'],
       minlength: [5, 'Review is too short'],
+      trim: true,
       maxlength: [255, 'Review is too long'],
     },
     rating: {
@@ -59,6 +60,9 @@ const ReviewSchema = new mongoose.Schema<ReviewDocs>(
 ReviewSchema.statics.build = (attr: IReview) => {
   return new Review(attr);
 };
+
+ReviewSchema.index({ user: 1 });
+ReviewSchema.index({ product: 1 });
 
 export const Review = mongoose.model<ReviewDocs, ReviewModelInterface>(
   'Review',

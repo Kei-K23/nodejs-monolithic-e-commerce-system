@@ -6,6 +6,7 @@ import productRoutes from './product.route';
 import productImageRoutes from './productImage.route';
 import inventoryRoutes from './inventory.route';
 import orderRoutes from './order.route';
+import reviewRoutes from './review.route';
 
 const routes = Router();
 
@@ -16,5 +17,6 @@ routes.use('/products', productRoutes);
 routes.use('/productImages', productImageRoutes);
 routes.use('/inventories', inventoryRoutes);
 routes.use('/orders', orderRoutes);
+routes.use('/reviews', reviewRoutes);
 
 export default routes;
