@@ -97,6 +97,7 @@ export class OrderService {
       userId: input.userId,
       orderId: order.id,
       orderItems: newlyCreatedOrderItems,
+      amount: totalAmount,
     });
 
     return { ...order.toJSON(), checkoutUrl: checkoutSessionRes.url };

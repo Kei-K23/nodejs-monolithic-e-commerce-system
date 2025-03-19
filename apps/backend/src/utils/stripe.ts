@@ -11,10 +11,12 @@ export const createStripeCheckoutSession = async ({
   userId,
   orderId,
   orderItems,
+  amount,
 }: {
   orderId: string;
   userId: string;
   orderItems: any;
+  amount: number;
 }) => {
   // Prepare line items for Stripe Checkout with images
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,8 +41,9 @@ export const createStripeCheckoutSession = async ({
     success_url: `${envConfig.app.url}/order-success?orderId=${orderId}`,
     cancel_url: `${envConfig.app.url}/order-cancel?orderId=${orderId}`,
     metadata: {
-      userId: userId,
-      orderId: orderId,
+      userId,
+      orderId,
+      amount,
     },
   });
 };

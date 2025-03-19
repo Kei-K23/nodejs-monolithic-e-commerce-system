@@ -1,8 +1,9 @@
-import express from 'express';
+import express, { raw } from 'express';
 import morgan from 'morgan';
 import logger from '@/config/logger.config';
 import { errorHandler } from '@/middlewares';
 import routes from '@/routes';
+import webhooks from '@/webhooks';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -26,6 +27,16 @@ app.use(
     },
   }),
 );
+
+// Webhook routes
+// Use Stripe Checkout webhook
+app.use('/api/v1/webhooks', raw({ type: 'application/json' }), webhooks);
+//! Provide with HTML page response for right now
+app.get('/order-success', (req, res) => {
+  res.json({
+    message: 'Successfully make checkout',
+  });
+});
 
 // Compression Middleware
 app.use(compression());
