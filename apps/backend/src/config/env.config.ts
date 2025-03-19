@@ -13,6 +13,9 @@ const envSchema = z.object({
   IMAGE_UPLOAD_URL_ENDPOINT: z.string(),
   IMAGE_UPLOAD_PRIVATE_KEY: z.string(),
   IMAGE_UPLOAD_PUBLIC_KEY: z.string(),
+  STRIPE_SECRET_KEY: z.string(),
+  STRIPE_WEBHOOK_SECRET: z.string(),
+  APP_URL: z.string().default('http://localhost:3000'),
 });
 
 const envVars = envSchema.safeParse(process.env);
@@ -26,6 +29,7 @@ export const envConfig = {
   app: {
     env: envVars.data.NODE_ENV,
     port: envVars.data.PORT,
+    url: envVars.data.APP_URL,
   },
   database: {
     connectionStr: envVars.data.MONGODB_URI,
@@ -38,5 +42,9 @@ export const envConfig = {
     urlEndpoint: envVars.data.IMAGE_UPLOAD_URL_ENDPOINT,
     privateKey: envVars.data.IMAGE_UPLOAD_PRIVATE_KEY,
     publicKey: envVars.data.IMAGE_UPLOAD_PUBLIC_KEY,
+  },
+  stripe: {
+    secret: envVars.data.STRIPE_SECRET_KEY,
+    webSecret: envVars.data.STRIPE_WEBHOOK_SECRET,
   },
 };

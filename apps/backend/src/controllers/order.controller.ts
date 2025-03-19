@@ -13,4 +13,28 @@ export default class OrderController {
       next(error);
     }
   };
+
+  static listAll = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const orders = await OrderService.getAll();
+      res.status(200).type('json').json(orders);
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  };
+
+  static getOneById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const order = await OrderService.getOneById(req.params.id);
+      res.status(200).type('json').json(order);
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  };
 }

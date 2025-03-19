@@ -1,6 +1,7 @@
 import mongoose, { Types } from 'mongoose';
 import { ProductImage } from './productImage.model';
 import { deleteFile } from '@/utils/upload';
+import { Review } from './review.model';
 
 export interface IProduct {
   name: string;
@@ -86,6 +87,9 @@ ProductSchema.pre('findOneAndDelete', async function (next) {
     const productImages = await ProductImage.find({
       product: doc._id,
     }).select(['fileId', 'id']);
+    const productReviews = await Review.find({
+      product: doc._id,
+    }).select('id');
 
     if (productImages.length > 0) {
       await Promise.all(
@@ -93,6 +97,14 @@ ProductSchema.pre('findOneAndDelete', async function (next) {
           // Delete product image and also in the uploaded image from imagekit
           await pi.deleteOne({ _id: pi.id });
           await deleteFile(pi.fileId);
+        }),
+      );
+    }
+
+    if (productReviews.length > 0) {
+      await Promise.all(
+        productReviews.map(async (pr) => {
+          await pr.deleteOne({ _id: pr.id });
         }),
       );
     }
@@ -110,12 +122,24 @@ ProductSchema.pre(
       product: productId,
     }).select(['fileId', 'id']);
 
+    const productReviews = await Review.find({
+      product: productId,
+    }).select('id');
+
     if (productImages.length > 0) {
       await Promise.all(
         productImages.map(async (pi) => {
           // Delete product image and also in the uploaded image from imagekit
           await pi.deleteOne({ _id: pi.id });
           await deleteFile(pi.fileId);
+        }),
+      );
+    }
+
+    if (productReviews.length > 0) {
+      await Promise.all(
+        productReviews.map(async (pr) => {
+          await pr.deleteOne({ _id: pr.id });
         }),
       );
     }
