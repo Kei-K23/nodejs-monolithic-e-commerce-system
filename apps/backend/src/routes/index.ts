@@ -3,6 +3,7 @@ import userRoutes from './user.route';
 import authRoutes from './auth.route';
 import categoryRoutes from './category.route';
 import productRoutes from './product.route';
+import productImageRoutes from './productImage.route';
 import inventoryRoutes from './inventory.route';
 import orderRoutes from './order.route';
 
@@ -12,6 +13,7 @@ routes.use('/users', userRoutes);
 routes.use('/auth', authRoutes);
 routes.use('/categories', categoryRoutes);
 routes.use('/products', productRoutes);
+routes.use('/productImages', productImageRoutes);
 routes.use('/inventories', inventoryRoutes);
 routes.use('/orders', orderRoutes);
 

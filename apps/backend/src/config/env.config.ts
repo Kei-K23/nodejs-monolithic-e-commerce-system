@@ -10,6 +10,9 @@ const envSchema = z.object({
     (val) => Number(val),
     z.number().default(604800000),
   ), // Convert string into number
+  IMAGE_UPLOAD_URL_ENDPOINT: z.string(),
+  IMAGE_UPLOAD_PRIVATE_KEY: z.string(),
+  IMAGE_UPLOAD_PUBLIC_KEY: z.string(),
 });
 
 const envVars = envSchema.safeParse(process.env);
@@ -30,5 +33,10 @@ export const envConfig = {
   jwt: {
     secretKey: envVars.data.JWT_SECRET,
     expiresIn: envVars.data.JWT_EXPIRES_IN,
+  },
+  imageUpload: {
+    urlEndpoint: envVars.data.IMAGE_UPLOAD_URL_ENDPOINT,
+    privateKey: envVars.data.IMAGE_UPLOAD_PRIVATE_KEY,
+    publicKey: envVars.data.IMAGE_UPLOAD_PUBLIC_KEY,
   },
 };
