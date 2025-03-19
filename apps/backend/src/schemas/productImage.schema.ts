@@ -21,10 +21,10 @@ export const requestProductImageSchema = z.object({
     .refine((file) => !!file, { message: 'Image file is required' }),
 });
 
-export const getProductByIdSchema = z.object({
+export const getProductImageByIdSchema = z.object({
   params: z
     .object({
-      id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid product ID'),
+      id: z.string().regex(/^[0-9a-fA-F]{24}$/, 'Invalid product image ID'),
     })
     .strict(),
 });

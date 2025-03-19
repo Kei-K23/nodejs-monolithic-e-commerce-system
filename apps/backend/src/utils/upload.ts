@@ -19,3 +19,8 @@ export const uploadLocalFile = async (
   const response = await imagekit.upload({ file: buffer, fileName });
   return response;
 };
+
+export const deleteFile = async (fileId: string) => {
+  const response = await imagekit.deleteFile(fileId);
+  return response;
+};

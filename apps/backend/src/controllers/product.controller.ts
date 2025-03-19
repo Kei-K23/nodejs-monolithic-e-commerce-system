@@ -42,6 +42,20 @@ export default class ProductController {
     }
   };
 
+  static getOneByIdWithImages = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const product = await ProductService.getOneByIdWithImages(req.params.id);
+      res.status(200).type('json').json(product);
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  };
+
   static editProduct = async (
     req: Request,
     res: Response,

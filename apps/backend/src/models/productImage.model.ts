@@ -3,6 +3,7 @@ import mongoose, { Types } from 'mongoose';
 export interface IProductImage {
   product: Types.ObjectId;
   imageUrl: string;
+  fileId: string;
 }
 
 interface ProductImageDocs extends IProductImage, mongoose.Document {}
@@ -21,6 +22,10 @@ const productImageSchema = new mongoose.Schema<ProductImageDocs>(
     imageUrl: {
       type: String,
       required: [true, 'Product image url is required'],
+    },
+    fileId: {
+      type: String,
+      required: [true, 'Uploaded file id is required'],
     },
   },
   {

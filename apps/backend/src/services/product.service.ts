@@ -4,6 +4,7 @@ import { InventoryService } from './inventory.service';
 import mongoose from 'mongoose';
 import { InputProduct } from '@/schemas/product.schema';
 import { Inventory } from '@/models/inventory.model';
+import { ProductImageService } from './productImage.service';
 
 export class ProductService {
   static create = async (input: InputProduct) => {
@@ -29,6 +30,17 @@ export class ProductService {
       throw new NotFoundError(`Product with ID ${id} not found`);
     }
     return product;
+  };
+
+  static getOneByIdWithImages = async (id: string) => {
+    const product = await Product.findById(id);
+    if (!product) {
+      throw new NotFoundError(`Product with ID ${id} not found`);
+    }
+
+    const images = await ProductImageService.getAllByProductId(product.id);
+
+    return { ...product.toJSON(), images: images ?? [] };
   };
 
   static getAll = async () => {

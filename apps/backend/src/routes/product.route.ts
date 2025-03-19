@@ -30,6 +30,15 @@ router.get(
   ],
   asyncHandler(ProductController.getOneById),
 );
+router.get(
+  '/images/:id',
+  [
+    checkJWT,
+    checkRoles([USER_ROLE.ADMIN, USER_ROLE.USER]),
+    validate(getProductByIdSchema),
+  ],
+  asyncHandler(ProductController.getOneByIdWithImages),
+);
 router.patch(
   '/:id',
   [
