@@ -1,4 +1,6 @@
 import mongoose, { Types } from 'mongoose';
+import { ProductImage } from './productImage.model';
+import { deleteFile } from '@/utils/upload';
 
 export interface IProduct {
   name: string;
@@ -73,6 +75,52 @@ const ProductSchema = new mongoose.Schema<ProductDocs>(
         return ret;
       },
     },
+  },
+);
+
+// Handle product related product images deleting when making delete to product
+ProductSchema.pre('findOneAndDelete', async function (next) {
+  // this.getFilter() means, when we call findOneAndDelete, when have to pass id as condition that condition is this.getFilter()
+  const doc = await this.model.findOne(this.getFilter());
+  if (doc) {
+    const productImages = await ProductImage.find({
+      product: doc._id,
+    }).select(['fileId', 'id']);
+
+    if (productImages.length > 0) {
+      await Promise.all(
+        productImages.map(async (pi) => {
+          // Delete product image and also in the uploaded image from imagekit
+          await pi.deleteOne({ _id: pi.id });
+          await deleteFile(pi.fileId);
+        }),
+      );
+    }
+  }
+
+  next();
+});
+
+ProductSchema.pre(
+  'deleteOne',
+  { document: true, query: false },
+  async function (next) {
+    const productId = this._id;
+    const productImages = await ProductImage.find({
+      product: productId,
+    }).select(['fileId', 'id']);
+
+    if (productImages.length > 0) {
+      await Promise.all(
+        productImages.map(async (pi) => {
+          // Delete product image and also in the uploaded image from imagekit
+          await pi.deleteOne({ _id: pi.id });
+          await deleteFile(pi.fileId);
+        }),
+      );
+    }
+
+    next();
   },
 );
 

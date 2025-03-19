@@ -48,9 +48,6 @@ InventorySchema.statics.build = (attr: IInventory) => {
   return new Inventory(attr);
 };
 
-// Indexes
-InventorySchema.index({ product: 1 });
-
 export const Inventory = mongoose.model<InventoryDocs, InventoryModelInterface>(
   'Inventory',
   InventorySchema,
