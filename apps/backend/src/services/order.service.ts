@@ -4,8 +4,6 @@ import { Order, OrderDocs } from '@/models/order.model';
 import { ProductService } from './product.service';
 import { ApiError, ClientError, NotFoundError } from '@/exceptions';
 import { createStripeCheckoutSession } from '@/utils/stripe';
-import { ProductImage } from '@/models/productImage.model';
-import { unknown } from 'zod';
 
 export class OrderService {
   static create = async (input: InputOrder) => {

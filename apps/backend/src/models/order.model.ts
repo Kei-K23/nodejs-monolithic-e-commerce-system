@@ -7,6 +7,7 @@ export enum ORDER_STATUS {
   SHIPPED = 'SHIPPED',
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED',
+  RETURNED = 'RETURNED',
 }
 
 export interface IOrderItem {
@@ -95,6 +96,7 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
         ORDER_STATUS.DELIVERED,
         ORDER_STATUS.PROCESSING,
         ORDER_STATUS.SHIPPED,
+        ORDER_STATUS.RETURNED,
       ],
       default: ORDER_STATUS.PENDING,
     },

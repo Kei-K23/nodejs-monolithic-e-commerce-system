@@ -27,6 +27,7 @@ const ShippingSchema = new mongoose.Schema<ShippingDocs>(
     order: {
       type: mongoose.Schema.ObjectId,
       ref: 'Order',
+      unique: true,
       required: [true, 'Order ID is required'],
     },
     user: {
@@ -55,10 +56,10 @@ const ShippingSchema = new mongoose.Schema<ShippingDocs>(
     estimatedDeliveryDate: {
       type: Date,
       required: [true, 'Estimated delivery date is required'],
+      default: new Date(),
     },
     status: {
       type: String,
-      required: [true, 'Shipping status is required'],
       enum: [
         SHIPPING_STATUS.PENDING,
         SHIPPING_STATUS.DELIVERED,
