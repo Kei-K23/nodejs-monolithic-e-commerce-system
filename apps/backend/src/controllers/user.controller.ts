@@ -1,4 +1,5 @@
 import logger from '@/config/logger.config';
+import { OrderService } from '@/services/order.service';
 import { UserService } from '@/services/user.service';
 import { NextFunction, Request, Response } from 'express';
 
@@ -18,6 +19,20 @@ export default class UserController {
     try {
       const users = await UserService.getAll();
       res.status(200).type('json').json(users);
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  };
+
+  static getOrdersById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const orders = await OrderService.getAllByUserId(req.params.id);
+      res.status(200).type('json').json(orders);
     } catch (error) {
       logger.error(error);
       next(error);

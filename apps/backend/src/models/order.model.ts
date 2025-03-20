@@ -24,7 +24,7 @@ export interface IOrder {
 }
 
 interface OrderItemDocs extends IOrderItem, mongoose.Document {}
-interface OrderDocs extends IOrder, mongoose.Document {}
+export interface OrderDocs extends IOrder, mongoose.Document {}
 
 interface OrderModelInterface extends mongoose.Model<OrderDocs> {
   build(attr: IOrder): OrderDocs;

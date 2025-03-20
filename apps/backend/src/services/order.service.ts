@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 import { InputOrder } from '@/schemas/order.schema';
-import { Order } from '@/models/order.model';
+import { Order, OrderDocs } from '@/models/order.model';
 import { ProductService } from './product.service';
 import { ApiError, ClientError, NotFoundError } from '@/exceptions';
 import { createStripeCheckoutSession } from '@/utils/stripe';
 import { ProductImage } from '@/models/productImage.model';
+import { unknown } from 'zod';
 
 export class OrderService {
   static create = async (input: InputOrder) => {
@@ -45,58 +46,22 @@ export class OrderService {
       product: new mongoose.Types.ObjectId(oi.productId),
     }));
 
-    const order = await Order.create({
+    const order = (await Order.create({
       totalQuantity,
       totalAmount,
       orderItems,
       user: new mongoose.Types.ObjectId(input.userId),
-    });
+    })) as unknown as OrderDocs;
 
-    const newlyCreatedOrder = (await Order.findById(order.id)
-      .populate({
-        path: 'orderItems.product',
-        select: 'id name price description', // Fetch only required fields
-      })
-      .lean()) as any;
-
-    if (!newlyCreatedOrder) {
-      throw new NotFoundError('Order not found');
-    }
-
-    const productIds = orderItems.map((oi) => oi.product).filter(Boolean);
-
-    const productImages = await ProductImage.find({
-      product: { $in: productIds }, // no need for `new mongoose.Types.ObjectId()`, since productIds are already ObjectId
-    }).lean();
-
-    // Normalize order items by adding product images
-    const productImagesMap = productImages.reduce(
-      (acc, image) => {
-        acc[image.product._id.toString()] =
-          acc[image.product._id.toString()] || [];
-        acc[image.product._id.toString()].push(image.imageUrl);
-        return acc;
-      },
-      {} as Record<string, any[]>,
-    );
-
-    // Attach images to products in orderItems
-    const newlyCreatedOrderItems = newlyCreatedOrder.orderItems.map(
-      (oi: any) => ({
-        ...oi,
-        product: {
-          ...oi.product,
-          images: productImagesMap[oi.product._id.toString()] || [],
-        },
-      }),
-    );
+    const normalizedOrder = await this.getNormalizedOneOrder(order);
+    console.log(normalizedOrder.orderItems);
 
     // 3. Need to create payment
     // 4. Create stripe checkout
     const checkoutSessionRes = await createStripeCheckoutSession({
       userId: input.userId,
       orderId: order.id,
-      orderItems: newlyCreatedOrderItems,
+      orderItems: normalizedOrder.orderItems,
       amount: totalAmount,
     });
 
@@ -115,6 +80,14 @@ export class OrderService {
     return await Order.find();
   };
 
+  static getAllByUserId = async (userId: string) => {
+    const orders = (await Order.find({ user: userId })) as OrderDocs[];
+
+    const normalizedOrders = await this.getNormalizedOrders(orders);
+
+    return normalizedOrders;
+  };
+
   static update = async (id: string, input: Partial<InputOrder>) => {
     const order = await Order.findByIdAndUpdate(id, input, {
       new: true, // Return updated data
@@ -127,5 +100,59 @@ export class OrderService {
     }
 
     return order;
+  };
+
+  static getNormalizedOrders = async (orders: OrderDocs[]) => {
+    return await Promise.all(
+      orders.map(async (order: OrderDocs) => {
+        const newOrderItems = await Promise.all(
+          order.orderItems.map(async (orderItem) => {
+            const productWithImage = await ProductService.getOneByIdWithImages(
+              orderItem.product._id.toString(),
+            );
+
+            return {
+              product: {
+                name: productWithImage.name,
+                description: productWithImage.description,
+                price: productWithImage.price,
+                images: productWithImage.images,
+              },
+              quantity: orderItem.quantity,
+            };
+          }),
+        );
+
+        return {
+          ...order.toJSON(),
+          orderItems: newOrderItems,
+        };
+      }),
+    );
+  };
+
+  static getNormalizedOneOrder = async (order: OrderDocs) => {
+    const newOrderItems = await Promise.all(
+      order.orderItems.map(async (orderItem) => {
+        const productWithImage = await ProductService.getOneByIdWithImages(
+          orderItem.product._id.toString(),
+        );
+
+        return {
+          product: {
+            name: productWithImage.name,
+            description: productWithImage.description,
+            price: productWithImage.price,
+            images: productWithImage.images,
+          },
+          quantity: orderItem.quantity,
+        };
+      }),
+    );
+
+    return {
+      ...order.toJSON(),
+      orderItems: newOrderItems,
+    };
   };
 }

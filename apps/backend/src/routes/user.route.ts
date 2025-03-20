@@ -26,6 +26,15 @@ router.get(
   [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getUserByIdSchema)],
   asyncHandler(UserController.getOneById),
 );
+router.get(
+  '/:id/orders',
+  [
+    checkJWT,
+    checkRoles([USER_ROLE.ADMIN, USER_ROLE.USER]),
+    validate(getUserByIdSchema),
+  ],
+  asyncHandler(UserController.getOrdersById),
+);
 router.patch(
   '/:id',
   [

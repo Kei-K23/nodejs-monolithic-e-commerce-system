@@ -26,7 +26,10 @@ export const createStripeCheckoutSession = async ({
       product_data: {
         name: item.product.name,
         description: item.product.description,
-        images: item.product.images ?? [],
+        images:
+          item.product.images
+            .map((image: any) => image.imageUrl)
+            .filter(Boolean) ?? [],
       },
       unit_amount: item.product.price * 100,
     },
