@@ -4,6 +4,7 @@ import { NotFoundError } from '@/exceptions';
 import { asyncHandler } from '@/middlewares';
 import { Order, ORDER_STATUS } from '@/models/order.model';
 import { PAYMENT_METHOD, PAYMENT_STATUS } from '@/models/payment.model';
+import { OrderService } from '@/services/order.service';
 import { PaymentService } from '@/services/payment.service';
 import { NextFunction, Request, Response, Router } from 'express';
 import Stripe from 'stripe';
@@ -79,5 +80,38 @@ routes.post(
     }
   }),
 );
+// Callback that use from strip checkout session creation
+routes.get(
+  '/order-success',
+  asyncHandler((_req: Request, res: Response, _next: NextFunction) => {
+    res.json({
+      message: 'Payment is success and your order is taken place',
+    });
+  }),
+);
+//! Get method never mutate the resource, but for this situation callback case, it will mutate
+routes.get(
+  '/order-cancel',
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { orderId } = req.query;
+      if (!orderId || typeof orderId !== 'string') {
+        throw new NotFoundError('Missing order id!');
+      }
 
+      await OrderService.update(orderId, {
+        paymentStatus: PAYMENT_STATUS.CANCELLED,
+        orderStatus: ORDER_STATUS.CANCELLED,
+      });
+
+      // Handle the logic to change the order status
+      res.json({
+        message: 'Successfully cancel the order',
+      });
+    } catch (error) {
+      logger.error(error);
+      next(error);
+    }
+  }),
+);
 export default routes;

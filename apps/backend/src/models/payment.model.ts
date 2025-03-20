@@ -7,6 +7,7 @@ export enum PAYMENT_METHOD {
 
 export enum PAYMENT_STATUS {
   PENDING = 'PENDING',
+  CANCELLED = 'CANCELLED',
   PAID = 'PAID',
   FAILED = 'FAILED',
   REFUNDED = 'REFUNDED',
@@ -47,6 +48,7 @@ const PaymentSchema = new mongoose.Schema<PaymentDocs>(
         PAYMENT_STATUS.FAILED,
         PAYMENT_STATUS.PAID,
         PAYMENT_STATUS.REFUNDED,
+        PAYMENT_STATUS.CANCELLED,
       ],
       default: PAYMENT_STATUS.PENDING,
     },

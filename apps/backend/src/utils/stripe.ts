@@ -38,8 +38,8 @@ export const createStripeCheckoutSession = async ({
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: `${envConfig.app.url}/order-success?orderId=${orderId}`,
-    cancel_url: `${envConfig.app.url}/order-cancel?orderId=${orderId}`,
+    success_url: `${envConfig.app.url}/api/v1/webhooks/order-success?orderId=${orderId}`,
+    cancel_url: `${envConfig.app.url}/api/v1/webhooks/order-cancel?orderId=${orderId}`,
     metadata: {
       userId,
       orderId,

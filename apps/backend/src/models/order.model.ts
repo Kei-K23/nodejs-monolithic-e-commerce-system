@@ -105,6 +105,7 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
         PAYMENT_STATUS.FAILED,
         PAYMENT_STATUS.PAID,
         PAYMENT_STATUS.REFUNDED,
+        PAYMENT_STATUS.CANCELLED,
       ],
       default: PAYMENT_STATUS.PENDING,
     },

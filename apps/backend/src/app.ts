@@ -31,12 +31,6 @@ app.use(
 // Webhook routes
 // Use Stripe Checkout webhook
 app.use('/api/v1/webhooks', raw({ type: 'application/json' }), webhooks);
-//! Provide with HTML page response for right now
-app.get('/order-success', (req, res) => {
-  res.json({
-    message: 'Successfully make checkout',
-  });
-});
 
 // Compression Middleware
 app.use(compression());
