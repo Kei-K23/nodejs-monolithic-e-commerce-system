@@ -8,6 +8,7 @@ import inventoryRoutes from './inventory.route';
 import orderRoutes from './order.route';
 import reviewRoutes from './review.route';
 import shippingRoutes from './shipping.route';
+import couponRoutes from './coupon.route';
 
 const routes = Router();
 
@@ -20,5 +21,6 @@ routes.use('/inventories', inventoryRoutes);
 routes.use('/orders', orderRoutes);
 routes.use('/reviews', reviewRoutes);
 routes.use('/shippings', shippingRoutes);
+routes.use('/coupons', couponRoutes);
 
 export default routes;

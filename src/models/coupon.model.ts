@@ -2,8 +2,11 @@ import mongoose from 'mongoose';
 
 export interface ICoupon {
   code: string;
-  discount: number;
-  expiryDate: Date;
+  discount: number; // Discount percentage
+  usageLimit: number;
+  usedCount?: number;
+  validFrom: Date;
+  validTo: Date;
 }
 
 interface CouponDocs extends ICoupon, mongoose.Document {}
@@ -16,6 +19,7 @@ const CouponSchema = new mongoose.Schema<CouponDocs>(
   {
     code: {
       type: String,
+      unique: true,
       required: [true, 'Coupon code is required'],
       validate: {
         validator: async function (value: string): Promise<boolean> {
@@ -36,9 +40,22 @@ const CouponSchema = new mongoose.Schema<CouponDocs>(
         message: 'Invalid discount',
       },
     },
-    expiryDate: {
+    validFrom: {
       type: Date,
-      required: [true, 'Coupon expiry date is required'],
+      required: [true, 'Coupon valid start date is required'],
+    },
+    validTo: {
+      type: Date,
+      required: [true, 'Coupon valid expire date is required'],
+    },
+    usedCount: {
+      type: Number,
+      default: 0,
+    },
+    usageLimit: {
+      type: Number,
+      required: [true, 'Coupon usage limit is required'],
+      default: 0,
     },
   },
   {

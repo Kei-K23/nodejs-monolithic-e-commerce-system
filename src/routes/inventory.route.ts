@@ -24,11 +24,7 @@ router.get(
 );
 router.get(
   '/:id',
-  [
-    checkJWT,
-    checkRoles([USER_ROLE.ADMIN, USER_ROLE.USER]),
-    validate(getInventoryByIdSchema),
-  ],
+  [checkJWT, checkRoles([USER_ROLE.ADMIN]), validate(getInventoryByIdSchema)],
   asyncHandler(InventoryController.getOneById),
 );
 router.get(

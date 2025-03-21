@@ -6,7 +6,6 @@ const stripe = new Stripe(envConfig.stripe.secret, {
   apiVersion: '2025-02-24.acacia',
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createStripeCheckoutSession = async ({
   userId,
   orderId,

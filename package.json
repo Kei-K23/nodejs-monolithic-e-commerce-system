@@ -1,7 +1,6 @@
 {
-  "name": "express-mongo-typescript-rest-api-starter",
+  "name": "nodejs-monolithic-e-commerce-system",
   "version": "1.0.0",
-  "description": "Starter",
   "private": true,
   "scripts": {
     "start": "node dist/server.js",
