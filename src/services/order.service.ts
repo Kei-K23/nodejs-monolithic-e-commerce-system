@@ -3,14 +3,19 @@ import { InputOrder } from '@/schemas/order.schema';
 import { Order, OrderDocs } from '@/models/order.model';
 import { ProductService } from './product.service';
 import { ApiError, ClientError, NotFoundError } from '@/exceptions';
-import { createStripeCheckoutSession } from '@/utils/stripe';
+import stripe, { createStripeCheckoutSession } from '@/utils/stripe';
 import { CouponService } from './coupon.service';
+import Stripe from 'stripe';
 
 export class OrderService {
   static create = async (input: InputOrder, couponCode?: string) => {
     // 1. Need to check product have enough stock, don't need to check to inventory because inventory and product already sync
     let totalAmount = 0;
     let totalQuantity = 0;
+
+    // Track record for rollback
+    const updatedProducts: { productId: string; previousStock: number }[] = [];
+    let order: OrderDocs | null = null;
     try {
       await Promise.all(
         input.orderItems.map(async (oi) => {
@@ -23,6 +28,13 @@ export class OrderService {
           if (!isValidProduct) {
             throw new ClientError('Some product are out of stock');
           }
+
+          // Store previous stock quantity for rollback
+          updatedProducts.push({
+            productId: oi.productId,
+            previousStock: isValidProduct.stockQuantity,
+          });
+
           await ProductService.update(oi.productId, {
             stockQuantity: isValidProduct.stockQuantity - oi.quantity,
           });
@@ -37,7 +49,7 @@ export class OrderService {
         product: new mongoose.Types.ObjectId(oi.productId),
       }));
 
-      const order = Order.build({
+      order = Order.build({
         totalQuantity,
         totalAmount,
         orderItems,
@@ -48,11 +60,13 @@ export class OrderService {
 
       // If coupon code exist, then apply coupon and if coupon is valid make discount for total amount
       let discount = 0;
+      let discountSuccess = false;
       if (couponCode) {
         const {
           success,
           message,
           discount: couponDiscount,
+          couponDiscount: originalCouponDiscount,
         } = await CouponService.applyCoupon({
           userId: input.userId,
           orderId: order.id,
@@ -62,8 +76,9 @@ export class OrderService {
 
         if (success) {
           // If apply coupon is successful, then update discount amount in order
-          order.discountAmount = couponDiscount;
+          order.discountAmount = originalCouponDiscount;
           discount = couponDiscount;
+          discountSuccess = true;
           await order.save();
         } else {
           throw new ApiError(message, 500);
@@ -77,11 +92,27 @@ export class OrderService {
         orderId: order.id,
         orderItems: normalizedOrder.orderItems,
         amount: totalAmount - discount,
+        discountSuccess,
+        discountPercentage: order.discountAmount,
       });
 
       return { ...order.toJSON(), checkoutUrl: checkoutSessionRes.url };
     } catch (error) {
       // Rollback Transaction on Failure
+      // Revert product stock updates
+      await Promise.all(
+        updatedProducts.map(async ({ productId, previousStock }) => {
+          await ProductService.update(productId, {
+            stockQuantity: previousStock,
+          });
+        }),
+      );
+
+      // Delete order if it was created
+      if (order) {
+        await Order.deleteOne({ _id: order.id });
+      }
+
       if (error instanceof ClientError) {
         throw new ClientError(error.message);
       } else if (error instanceof ApiError) {

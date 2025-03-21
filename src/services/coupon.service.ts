@@ -134,6 +134,7 @@ export class CouponService {
       success: true,
       message: 'Successfully applied the coupon for this order',
       discount: orderAmount / coupon.discount,
+      couponDiscount: coupon.discount,
     };
   };
 }

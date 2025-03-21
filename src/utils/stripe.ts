@@ -11,11 +11,15 @@ export const createStripeCheckoutSession = async ({
   orderId,
   orderItems,
   amount,
+  discountPercentage,
+  discountSuccess,
 }: {
   orderId: string;
   userId: string;
   orderItems: any;
   amount: number;
+  discountPercentage?: number;
+  discountSuccess: boolean;
 }) => {
   // Prepare line items for Stripe Checkout with images
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,6 +39,14 @@ export const createStripeCheckoutSession = async ({
     quantity: item.quantity,
   }));
 
+  let coupon;
+  if (discountSuccess) {
+    coupon = await stripe.coupons.create({
+      percent_off: discountPercentage,
+      duration: 'once',
+    });
+  }
+
   // Create a Stripe Checkout session
   return await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
@@ -47,5 +59,8 @@ export const createStripeCheckoutSession = async ({
       orderId,
       amount,
     },
+    discounts: [discountSuccess ? { coupon: coupon?.id } : {}],
   });
 };
+
+export default stripe;
