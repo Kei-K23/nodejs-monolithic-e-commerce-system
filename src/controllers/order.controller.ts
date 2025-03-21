@@ -5,7 +5,8 @@ import { NextFunction, Request, Response } from 'express';
 export default class OrderController {
   static newOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const product = await OrderService.create(req.body);
+      const { couponCode } = req.query;
+      const product = await OrderService.create(req.body, couponCode as string);
 
       res.status(201).type('json').json(product);
     } catch (error) {

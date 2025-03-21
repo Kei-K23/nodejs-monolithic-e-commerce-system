@@ -18,9 +18,10 @@ export interface IOrderItem {
 export interface IOrder {
   user: Types.ObjectId;
   totalAmount: number;
+  discountAmount?: number;
   totalQuantity: number;
-  orderStatus: ORDER_STATUS;
-  paymentStatus: PAYMENT_STATUS;
+  orderStatus?: ORDER_STATUS;
+  paymentStatus?: PAYMENT_STATUS;
   orderItems: IOrderItem[];
 }
 
@@ -77,6 +78,17 @@ const orderSchema = new mongoose.Schema<OrderDocs>(
         },
         message: 'Invalid total amount',
       },
+    },
+    discountAmount: {
+      type: Number,
+      required: [true, 'Discount amount is required'],
+      validate: {
+        validator: async function (value: number): Promise<boolean> {
+          return value >= 0;
+        },
+        message: 'Discount amount',
+      },
+      default: 0,
     },
     totalQuantity: {
       type: Number,
@@ -137,4 +149,7 @@ orderSchema.statics.build = (attr: IOrder) => {
 // Indexes
 orderSchema.index({ user: 1 });
 
-export const Order = mongoose.model<OrderModelInterface>('Order', orderSchema);
+export const Order = mongoose.model<OrderDocs, OrderModelInterface>(
+  'Order',
+  orderSchema,
+);

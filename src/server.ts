@@ -7,6 +7,7 @@ import { app } from '@/app';
 let server: Server;
 
 // Mongodb connection with Mongoose
+
 mongoose
   .connect(envConfig.database.connectionStr)
   .then(() => {

@@ -4,9 +4,10 @@ import { Order, OrderDocs } from '@/models/order.model';
 import { ProductService } from './product.service';
 import { ApiError, ClientError, NotFoundError } from '@/exceptions';
 import { createStripeCheckoutSession } from '@/utils/stripe';
+import { CouponService } from './coupon.service';
 
 export class OrderService {
-  static create = async (input: InputOrder) => {
+  static create = async (input: InputOrder, couponCode?: string) => {
     // 1. Need to check product have enough stock, don't need to check to inventory because inventory and product already sync
     let totalAmount = 0;
     let totalQuantity = 0;
@@ -26,44 +27,69 @@ export class OrderService {
             stockQuantity: isValidProduct.stockQuantity - oi.quantity,
           });
 
-          // TODO When coupon or discount include, this is the place the add discount amount, I guest :)
           totalAmount += isValidProduct.price * oi.quantity;
           totalQuantity += oi.quantity;
         }),
       );
+
+      const orderItems = input.orderItems.map((oi) => ({
+        quantity: oi.quantity,
+        product: new mongoose.Types.ObjectId(oi.productId),
+      }));
+
+      const order = Order.build({
+        totalQuantity,
+        totalAmount,
+        orderItems,
+        user: new mongoose.Types.ObjectId(input.userId),
+      }) as unknown as OrderDocs;
+      await order.save();
+      const normalizedOrder = await this.getNormalizedOneOrder(order);
+
+      // If coupon code exist, then apply coupon and if coupon is valid make discount for total amount
+      let discount = 0;
+      if (couponCode) {
+        const {
+          success,
+          message,
+          discount: couponDiscount,
+        } = await CouponService.applyCoupon({
+          userId: input.userId,
+          orderId: order.id,
+          orderAmount: totalAmount,
+          couponCode,
+        });
+
+        if (success) {
+          // If apply coupon is successful, then update discount amount in order
+          order.discountAmount = couponDiscount;
+          discount = couponDiscount;
+          await order.save();
+        } else {
+          throw new ApiError(message, 500);
+        }
+      }
+
+      // 3. Need to create payment
+      // 4. Create stripe checkout
+      const checkoutSessionRes = await createStripeCheckoutSession({
+        userId: input.userId,
+        orderId: order.id,
+        orderItems: normalizedOrder.orderItems,
+        amount: totalAmount - discount,
+      });
+
+      return { ...order.toJSON(), checkoutUrl: checkoutSessionRes.url };
     } catch (error) {
-      if (error instanceof ApiError) {
+      // Rollback Transaction on Failure
+      if (error instanceof ClientError) {
         throw new ClientError(error.message);
+      } else if (error instanceof ApiError) {
+        throw new ApiError(error.message, error.statusCode);
       } else {
-        throw new ApiError('Something went wrong');
+        throw new ApiError('Something went wrong when creating order');
       }
     }
-
-    const orderItems = input.orderItems.map((oi) => ({
-      quantity: oi.quantity,
-      product: new mongoose.Types.ObjectId(oi.productId),
-    }));
-
-    const order = (await Order.create({
-      totalQuantity,
-      totalAmount,
-      orderItems,
-      user: new mongoose.Types.ObjectId(input.userId),
-    })) as unknown as OrderDocs;
-
-    const normalizedOrder = await this.getNormalizedOneOrder(order);
-    console.log(normalizedOrder.orderItems);
-
-    // 3. Need to create payment
-    // 4. Create stripe checkout
-    const checkoutSessionRes = await createStripeCheckoutSession({
-      userId: input.userId,
-      orderId: order.id,
-      orderItems: normalizedOrder.orderItems,
-      amount: totalAmount,
-    });
-
-    return { ...order.toJSON(), checkoutUrl: checkoutSessionRes.url };
   };
 
   static getOneById = async (id: string) => {

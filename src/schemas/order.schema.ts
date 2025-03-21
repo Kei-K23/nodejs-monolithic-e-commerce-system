@@ -36,4 +36,12 @@ export const getOrderByIdSchema = z.object({
     .strict(),
 });
 
+export const couponCodeQuerySchema = z.object({
+  params: z
+    .object({
+      couponCode: z.string().optional(),
+    })
+    .strict(),
+});
+
 export type InputOrder = z.infer<typeof createOrderSchema.shape.body>;
