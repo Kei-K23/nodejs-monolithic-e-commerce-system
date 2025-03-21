@@ -30,6 +30,7 @@ router.get(
   ],
   asyncHandler(ProductController.getOneById),
 );
+// TODO need to add reviews like images
 router.get(
   '/:id/images',
   [

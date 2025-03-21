@@ -1,26 +1,10 @@
 import mongoose from 'mongoose';
-import {
-  Payment,
-  PAYMENT_METHOD,
-  PAYMENT_STATUS,
-} from '@/models/payment.model';
-
-// user: Types.ObjectId;
-// order: Types.ObjectId;
-// paymentMethod: PAYMENT_METHOD;
-// transactionId: string;
-// amount: number;
-// status: PAYMENT_STATUS;
+import { Payment } from '@/models/payment.model';
+import { NotFoundError } from '@/exceptions';
+import { InputPayment } from '@/schemas/payment.schema';
 
 export class PaymentService {
-  static create = async (input: {
-    userId: string;
-    orderId: string;
-    paymentMethod: PAYMENT_METHOD;
-    transactionId: string;
-    amount: number;
-    status: PAYMENT_STATUS;
-  }) => {
+  static create = async (input: InputPayment) => {
     // When product create, also need to create inventory stock for that product
     const payment = Payment.build({
       ...input,
@@ -30,5 +14,17 @@ export class PaymentService {
     await payment.save();
 
     return payment;
+  };
+
+  static getOneById = async (id: string) => {
+    const payment = await Payment.findById(id);
+    if (!payment) {
+      throw new NotFoundError(`Payment with ID ${id} not found`);
+    }
+    return payment;
+  };
+
+  static getAll = async () => {
+    return await Payment.find();
   };
 }

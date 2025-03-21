@@ -9,6 +9,8 @@ import orderRoutes from './order.route';
 import reviewRoutes from './review.route';
 import shippingRoutes from './shipping.route';
 import couponRoutes from './coupon.route';
+import couponUsageRoutes from './couponUsage.route';
+import paymentRoutes from './payment.route';
 
 const routes = Router();
 
@@ -22,5 +24,7 @@ routes.use('/orders', orderRoutes);
 routes.use('/reviews', reviewRoutes);
 routes.use('/shippings', shippingRoutes);
 routes.use('/coupons', couponRoutes);
+routes.use('/couponUsages', couponUsageRoutes);
+routes.use('/payments', paymentRoutes);
 
 export default routes;
