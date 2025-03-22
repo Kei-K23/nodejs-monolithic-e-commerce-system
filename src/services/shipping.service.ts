@@ -4,13 +4,17 @@ import mongoose from 'mongoose';
 import { InputShipping } from '@/schemas/shipping.schema';
 import { OrderService } from './order.service';
 import { ORDER_STATUS } from '@/models/order.model';
+import emailTemplates from '@/utils/emailTemplates';
+import { sendEmail } from '@/utils/nodemailer';
+import { UserService } from './user.service';
 
 export class ShippingService {
   static create = async (input: InputShipping) => {
+    const trackingNumber = crypto.randomUUID().toString();
     // When product create, also need to create inventory stock for that product
     const shipping = Shipping.build({
       ...input,
-      trackingNumber: crypto.randomUUID().toString(),
+      trackingNumber,
       user: new mongoose.Types.ObjectId(input.userId),
       order: new mongoose.Types.ObjectId(input.orderId),
     });
@@ -19,6 +23,20 @@ export class ShippingService {
     // Update Order status to shipping
     await OrderService.update(input.orderId, {
       orderStatus: ORDER_STATUS.DELIVERED,
+    });
+
+    const user = await UserService.getOneById(input.userId);
+    // Send order confirm email
+    const paymentCheckoutEmailTemplate = emailTemplates.orderShipped({
+      customerName: user.name,
+      orderId: input.orderId,
+      trackingNumber,
+      deliveryDate: input.estimatedDeliveryDate,
+    });
+    await sendEmail({
+      to: user.email,
+      subject: 'We delivered your order!',
+      html: paymentCheckoutEmailTemplate,
     });
 
     return shipping;

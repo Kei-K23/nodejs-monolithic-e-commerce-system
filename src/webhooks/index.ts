@@ -6,6 +6,9 @@ import { Order, ORDER_STATUS } from '@/models/order.model';
 import { PAYMENT_METHOD, PAYMENT_STATUS } from '@/models/payment.model';
 import { OrderService } from '@/services/order.service';
 import { PaymentService } from '@/services/payment.service';
+import { UserService } from '@/services/user.service';
+import emailTemplates from '@/utils/emailTemplates';
+import { sendEmail } from '@/utils/nodemailer';
 import { NextFunction, Request, Response, Router } from 'express';
 import Stripe from 'stripe';
 
@@ -62,6 +65,20 @@ routes.post(
           status: PAYMENT_STATUS.PAID,
           transactionId: session.payment_intent as string,
           paymentMethod: PAYMENT_METHOD.STRIPE,
+        });
+
+        const user = await UserService.getOneById(userId);
+
+        // Send order confirm email
+        const paymentCheckoutEmailTemplate = emailTemplates.paymentSuccess({
+          customerName: user.name,
+          orderId: order.id,
+          orderTotal: amount,
+        });
+        await sendEmail({
+          to: user.email,
+          subject: 'Order checkout payment successful!',
+          html: paymentCheckoutEmailTemplate,
         });
 
         res.status(200).type('json').send({

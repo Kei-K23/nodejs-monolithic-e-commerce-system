@@ -15,6 +15,8 @@ const envSchema = z.object({
   IMAGE_UPLOAD_PUBLIC_KEY: z.string(),
   STRIPE_SECRET_KEY: z.string(),
   STRIPE_WEBHOOK_SECRET: z.string(),
+  NODEMAILER_EMAIL_USER: z.string(),
+  NODEMAILER_EMAIL_PASS: z.string(),
   APP_URL: z.string().default('http://localhost:3000'),
 });
 
@@ -46,5 +48,9 @@ export const envConfig = {
   stripe: {
     secret: envVars.data.STRIPE_SECRET_KEY,
     webSecret: envVars.data.STRIPE_WEBHOOK_SECRET,
+  },
+  email: {
+    username: envVars.data.NODEMAILER_EMAIL_USER,
+    password: envVars.data.NODEMAILER_EMAIL_PASS,
   },
 };

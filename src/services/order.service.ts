@@ -3,9 +3,11 @@ import { InputOrder } from '@/schemas/order.schema';
 import { Order, OrderDocs } from '@/models/order.model';
 import { ProductService } from './product.service';
 import { ApiError, ClientError, NotFoundError } from '@/exceptions';
-import stripe, { createStripeCheckoutSession } from '@/utils/stripe';
+import { createStripeCheckoutSession } from '@/utils/stripe';
 import { CouponService } from './coupon.service';
-import Stripe from 'stripe';
+import emailTemplates from '@/utils/emailTemplates';
+import { sendEmail } from '@/utils/nodemailer';
+import { UserService } from './user.service';
 
 export class OrderService {
   static create = async (input: InputOrder, couponCode?: string) => {
@@ -94,6 +96,21 @@ export class OrderService {
         amount: totalAmount - discount,
         discountSuccess,
         discountPercentage: order.discountAmount,
+      });
+
+      const user = await UserService.getOneById(input.userId);
+
+      // Send order confirm email
+      const orderConfirmEmailTemplate = emailTemplates.orderConfirmation({
+        customerName: user.name,
+        orderId: order.id,
+        orderTotal: totalAmount - discount,
+        orderItems: normalizedOrder.orderItems.map((oi) => oi.product.name),
+      });
+      await sendEmail({
+        to: user.email,
+        subject: 'Order confirmation email sent!',
+        html: orderConfirmEmailTemplate,
       });
 
       return { ...order.toJSON(), checkoutUrl: checkoutSessionRes.url };
