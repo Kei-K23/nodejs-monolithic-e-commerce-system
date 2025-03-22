@@ -35,4 +35,123 @@ export class AnalyticService {
     csvStream.write(salesReport);
     csvStream.end();
   };
+
+  static getSalesByMonth = async () => {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: { $month: '$createdAt' },
+          totalRevenue: { $sum: '$totalAmount' },
+          totalOrders: { $sum: 1 },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          month: '$_id',
+          totalRevenue: 1,
+          totalOrders: 1,
+        },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadSalesByMonth = async (res: Response) => {
+    const result = await this.getSalesByMonth();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getTopSellingProducts = async () => {
+    const result = await Order.aggregate([
+      { $unwind: '$orderItems' },
+      {
+        $group: {
+          _id: '$orderItems.product',
+          totalSold: { $sum: '$orderItems.quantity' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'productDetails',
+        },
+      },
+      {
+        $unwind: '$productDetails',
+      },
+      {
+        $project: {
+          _id: 0,
+          productName: '$productDetails.name',
+          productId: '$productDetails._id',
+          totalSold: 1,
+        },
+      },
+      {
+        $sort: { totalSold: -1 },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadTopSellingProducts = async (res: Response) => {
+    const result = await this.getTopSellingProducts();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getCustomerPurchaseReport = async () => {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: '$user',
+          totalSpent: { $sum: '$totalAmount' },
+          totalOrders: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: '$_id',
+          totalSpent: 1,
+          totalOrders: 1,
+        },
+      },
+      {
+        $sort: { totalSpent: -1 },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadCustomerPurchaseReport = async (res: Response) => {
+    const result = await this.getCustomerPurchaseReport();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
 }
