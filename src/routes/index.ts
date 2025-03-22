@@ -11,6 +11,7 @@ import shippingRoutes from './shipping.route';
 import couponRoutes from './coupon.route';
 import couponUsageRoutes from './couponUsage.route';
 import paymentRoutes from './payment.route';
+import analyticRoutes from './analytic.route';
 
 const routes = Router();
 
@@ -26,5 +27,6 @@ routes.use('/shippings', shippingRoutes);
 routes.use('/coupons', couponRoutes);
 routes.use('/couponUsages', couponUsageRoutes);
 routes.use('/payments', paymentRoutes);
+routes.use('/analytics', analyticRoutes);
 
 export default routes;
