@@ -1,141 +1,138 @@
-# Express Mongo TypeScript REST API Starter
+# Node.js Monolithic E-Commerce System
 
-A **starter template** for building RESTful APIs using **Express.js**, **MongoDB**, **Mongoose** and **TypeScript**. This project provides a pre-configured project structure with best practices, allowing you to focus on writing your business logic.
+A monolithic e-commerce backend service built with **Node.js**, **Express**, **MongoDB**, and **Redis**. This service provides APIs for user authentication, user management, product management, inventory management, order handling, coupon and discount, order analytics reports and much more.
 
-## 🚀 Features & Best Practices
+## 🚀 Features
 
-- ✅ **Layered architecture** (controllers, services, models, middlewares, schemas).
-- ✅ **Strict TypeScript usage** for type safety.
-- ✅ **Environment variable management** using `dotenv`.
-- ✅ **Security best practices** (CORS, Helmet, etc.).
-- ✅ **Centralized error handling middleware** for cleaner code.
-- ✅ **Production-ready folder structure** for scalability.
-- ✅ **Pre-configured logging** using Winston.
-- ✅ **Validation middleware** for request validation.
-- ✅ **ESLint & Prettier** configured for consistent code style.
-- ✅ **Easier development with Nodemon** automatically restarting the application when changes are detected.
+- **Authentication & Authorization** (JWT-based)
+- **RBAC** (role-based authentication and authorization)
+- **Product Management** (CRUD operations)
+- **User Management** (CRUD operations)
+- **Inventory Management** (CRUD operations)
+- **Order Processing**
+- **Stripe integration** for order payment checkout
+- **Coupon code and discount** (Product discount with coupon code)
+- **Email message sending** (Order create, Payment success and Shipping payment)
+- **Redis Caching** for improved performance
+- **MongoDB Database** for persistent storage
+- **API ratelimiting** to improve security and performance
+- **Global Error handling middleware** to catch all error
+- **Logging and storing log** for better issues tracing
+- **Mongodb Aggregation pipeline** for analytics reportings
+- **Dockerized** for easy deployment and self-hosting
 
-## 📂 Project Structure
+---
 
-```
-📦 emt-rest-api
- ┣ 📂 logs                    # Application log files
- ┣ 📂 src                     # Project source folder
- ┃ ┣ 📂 config                # Project configuration files
- ┃ ┃ ┣ 📜 env.config.ts
- ┃ ┃ ┗ 📜 logger.config.ts
- ┃ ┣ 📂 exceptions            # Exception response classes
- ┃ ┃ ┣ 📜 apiError.ts
- ┃ ┃ ┣ 📜 forbiddenError.ts
- ┃ ┃ ┣ 📜 notFoundError.ts
- ┃ ┃ ┗ 📜 unauthorizedError.ts
- ┃ ┣ 📂 controllers           # Handle request and business logic implementation
- ┃ ┃ ┣ 📜 user.controller.ts
- ┃ ┃ ┗ 📜 auth.controller.ts
- ┃ ┣ 📂 middlewares           # Reusable middlewares
- ┃ ┃ ┣ 📜 auth.middleware.ts
- ┃ ┃ ┣ 📜 errorHandler.middleware.ts
- ┃ ┃ ┗ 📜 validate-resources.middleware.ts
- ┃ ┣ 📂 models                # Defines Mongoose schemas and models
- ┃ ┃ ┣ 📜 user.model.ts
- ┃ ┃ ┗ 📜 session.model.ts
- ┃ ┣ 📂 routes                # Route definitions
- ┃ ┃ ┣ 📜 user.routes.ts
- ┃ ┃ ┣ 📜 auth.routes.ts
- ┃ ┃ ┗ 📜 index.ts
- ┃ ┣ 📂 schemas               # Zod schemas for handling validation
- ┃ ┃ ┣ 📜 user.schema.ts
- ┃ ┣ 📂 services              # Handle business logic related things here
- ┃ ┃ ┣ 📜 auth.service.ts
- ┃ ┃ ┣ 📜 user.service.ts
- ┃ ┣ 📂 utils                 # Utility/helper functions
- ┃ ┣ 📜 app.ts                # Express App Setup
- ┃ ┗ 📜 server.ts             # Server Entry Point
- ┣ 📜 .env                    # Environment variables
- ┣ 📜 .gitignore              # Git ignored files
- ┣ 📜 package.json            # Project dependencies
- ┣ 📜 tsconfig.json           # TypeScript configuration
- ┗ 📜 README.md               # Project documentation
-```
+## 🛠️ Tech Stack
 
-## 🛠 Installation & Setup
+- **TypeScript** - Language
+- **Node.js** – Backend runtime
+- **Express.js** – Web framework for APIs
+- **MongoDB** – NoSQL database
+- **Redis** – Caching layer
+- **Docker & Docker Compose** – Containerization
+- **pnpm** – Fast package manager
+- **Mongoose** – ODM for MongoDB
+- **Nodemailer** – Email transport client
+- **Winston & Morgan** – Logging
+- **imagekit** – Product image upload
+- **fast-csv** – Download analytics report with .csv format
 
-### 1️⃣ Prerequisites
+---
 
-Make sure you have the following installed:
+## 📦 Installation
 
-- **Node.js** (>=18.x)
-- **MongoDB** (running locally or via a cloud provider)
-
-### 2️⃣ Clone the repository
+### 1️⃣ Clone the Repository
 
 ```sh
-git clone https://github.com/Kei-K23/express-mongo-typescript-starter.git
-cd express-mongo-typescript-starter
-rm -rf .git # Remove the .git folder and init your own .git
-git init
+git clone https://github.com/Kei-K23/nodejs-monolithic-e-commerce-system.git
+cd nodejs-monolithic-e-commerce-system
 ```
 
-### 3️⃣ Install dependencies
+### 2️⃣ Setup Environment Variables
+
+Create a `.env` file and configure it:
+
+```bash
+NODE_ENV=development
+PORT=3000
+APP_URL=http://localhost:3000
+MONGODB_URI=<YOUR_MONGODB_URI>
+JWT_SECRET=<YOUR_JWT_SECRET>
+JWT_EXPIRES_IN=<YOUR_JWT_EXPIRES_IN>
+IMAGE_UPLOAD_URL_ENDPOINT=<YOUR_IMAGEKIT_IMAGE_UPLOAD_URL_ENDPOINT>
+IMAGE_UPLOAD_PRIVATE_KEY=<YOUR_IMAGEKIT_IMAGE_UPLOAD_PRIVATE_KEY>
+IMAGE_UPLOAD_PUBLIC_KEY=<YOUR_IMAGEKIT_IMAGE_UPLOAD_PUBLIC_KEY>
+STRIPE_SECRET_KEY=<YOUR_STRIPE_SECRET_KEY>
+STRIPE_WEBHOOK_SECRET=<YOUR_STRIPE_WEBHOOK_SECRET>
+NODEMAILER_EMAIL_USER=<YOUR_NODEMAILER_EMAIL_USER>
+NODEMAILER_EMAIL_PASS=<YOUR_NODEMAILER_EMAIL_PASS>
+```
+
+---
+
+## 🐳 Running with Docker
+
+### **Start the Services**
 
 ```sh
-npm install
-# or
-pnpm install
+docker-compose up -d --build
 ```
 
-### 4️⃣ Set up environment variables
-
-Rename `.env.example` to `.env` and update the values accordingly:
-
-### 5️⃣ Start the development server
+### **Stop the Services**
 
 ```sh
-npm run dev
-# or
-pnpm run dev
+docker-compose down
 ```
 
-By default, the server will run at **`http://localhost:3000`**.
+---
 
-## 🚀 Running in Production
+## 🏗️ Running Locally (Without Docker)
 
-To run the project in **production mode**:
+1. Install dependencies
 
-```sh
-npm run build
-npm start
-# or
-pnpm run build
-pnpm start
-```
+   ```sh
+   pnpm install
+   ```
 
-## 🔍 API Endpoints
+2. Start MongoDB & Redis (If not using Docker)
 
-### Authentication Routes
+   ```sh
+   mongod --port 27017
+   redis-server
+   ```
 
-| Method | Endpoint             | Description         |
-| ------ | -------------------- | ------------------- |
-| POST   | `/api/auth/register` | Register a new user |
-| POST   | `/api/auth/login`    | User login          |
+3. Start the application
+   ```sh
+   pnpm start
+   ```
 
-### User Routes
+---
 
-| Method | Endpoint         | Description           |
-| ------ | ---------------- | --------------------- |
-| GET    | `/api/users`     | Get list of all users |
-| GET    | `/api/users/:id` | Get user by ID        |
-| PATCH  | `/api/users/:id` | Update user details   |
-| DELETE | `/api/users/:id` | Delete user           |
+## 🔥 API Endpoints
 
-## 🎨 Code Formatting
+| Method | Endpoint                | Description       |
+| ------ | ----------------------- | ----------------- |
+| `POST` | `/api/v1/auth/login`    | User login        |
+| `POST` | `/api/v1/auth/register` | User registration |
+| `GET`  | `/api/v1/products`      | Get all products  |
+| `POST` | `/api/v1/products`      | Add a new product |
 
-ESLint and Prettier are configured. Run the following command to format code:
+_For more details, refer to the Postman API documentation._
+[Nodejs Monolithic E-commerce System.postman_collection.json](/Nodejs%20Monolithic%20E-commerce%20System.postman_collection.json)
 
-```sh
-npm run lint
-```
+---
 
-## 📌 Contributing
+## 📝 License
 
-Contributions are welcome! Feel free to fork this repository and submit a pull request.
+This project is **[MIT Licensed](/LICENSE)**.
+
+---
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** a new branch (`feature/new-feature`)
+3. **Commit** your changes
+4. **Push** to your branch
+5. **Open** a Pull Request
