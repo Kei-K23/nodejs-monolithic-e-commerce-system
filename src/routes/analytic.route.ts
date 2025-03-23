@@ -50,4 +50,70 @@ router.get(
   asyncHandler(AnalyticController.downloadGetCustomerPurchaseReport),
 );
 
+router.get(
+  '/order-status-count',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.getOrderStatusCounts),
+);
+router.get(
+  '/order-status-count/download',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.downloadOrderStatusCounts),
+);
+
+router.get(
+  '/revenue-by-order-status',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.getRevenueByOrderStatus),
+);
+router.get(
+  '/revenue-by-order-status/download',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.downloadRevenueByOrderStatus),
+);
+
+router.get(
+  '/daily-sales-report',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.getDailySalesReport),
+);
+router.get(
+  '/daily-sales-report/download',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.downloadDailySalesReport),
+);
+
+router.get(
+  '/monthly-growth-rate',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.getMonthlyGrowthRate),
+);
+router.get(
+  '/monthly-growth-rate/download',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.downloadMonthlyGrowthRate),
+);
+
+router.get(
+  '/category-wise-sales',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.getCategoryWiseSales),
+);
+router.get(
+  '/category-wise-sales/download',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.downloadCategoryWiseSales),
+);
+
+router.get(
+  '/most-profitable-products',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.getMostProfitableProduct),
+);
+router.get(
+  '/most-profitable-products/download',
+  [checkJWT, checkRoles([USER_ROLE.ADMIN])],
+  asyncHandler(AnalyticController.downloadMostProfitableProduct),
+);
+
 export default router;

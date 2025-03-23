@@ -154,4 +154,262 @@ export class AnalyticService {
 
     csvStream.end();
   };
+
+  static getOrderStatusCounts = async () => {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: '$orderStatus',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          orderStatus: '$_id',
+          count: 1,
+        },
+      },
+      {
+        $sort: { count: -1 },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadOrderStatusCounts = async (res: Response) => {
+    const result = await this.getOrderStatusCounts();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getRevenueByOrderStatus = async () => {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: '$orderStatus',
+          totalRevenue: { $sum: '$totalAmount' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          orderStatus: '$_id',
+          totalRevenue: 1,
+        },
+      },
+      {
+        $sort: { totalRevenue: -1 },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadRevenueByOrderStatus = async (res: Response) => {
+    const result = await this.getRevenueByOrderStatus();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getDailySalesReport = async () => {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: '%Y-%m-%d',
+              date: '$createdAt',
+            },
+          },
+          totalRevenue: { $sum: '$totalAmount' },
+          totalOrder: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          totalRevenue: 1,
+          totalOrder: 1,
+        },
+      },
+      {
+        $sort: { date: -1 },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadDailySalesReport = async (res: Response) => {
+    const result = await this.getDailySalesReport();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getMonthlyGrowthRate = async () => {
+    const result = await Order.aggregate([
+      {
+        $group: {
+          _id: {
+            year: {
+              $year: '$createdAt',
+            },
+            month: {
+              $month: '$createdAt',
+            },
+          },
+          totalRevenue: { $sum: '$totalAmount' },
+          totalOrder: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          year: '$_id.year',
+          month: '$_id.month',
+          totalRevenue: 1,
+          totalOrder: 1,
+        },
+      },
+      {
+        $sort: { year: 1, month: 1 },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadMonthlyGrowthRate = async (res: Response) => {
+    const result = await this.getMonthlyGrowthRate();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getCategoryWiseSales = async () => {
+    const result = await Order.aggregate([
+      { $unwind: '$orderItems' },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'orderItems.product',
+          foreignField: '_id',
+          as: 'productDetail',
+        },
+      },
+      { $unwind: '$productDetail' },
+      {
+        $lookup: {
+          from: 'categories', // Join categories collection
+          localField: 'productDetail.category', // category is an ObjectId
+          foreignField: '_id',
+          as: 'categoryDetail',
+        },
+      },
+      { $unwind: '$categoryDetail' },
+      {
+        $group: {
+          _id: '$categoryDetail.name', // Use category name instead of ObjectId
+          totalRevenue: {
+            $sum: {
+              $multiply: ['$orderItems.quantity', '$productDetail.price'],
+            },
+          },
+          totalSold: { $sum: '$orderItems.quantity' },
+        },
+      },
+      { $sort: { totalRevenue: -1 } },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id',
+          totalRevenue: 1,
+          totalSold: 1,
+        },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadCategoryWiseSales = async (res: Response) => {
+    const result = await this.getCategoryWiseSales();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
+
+  static getMostProfitableProduct = async () => {
+    const result = await Order.aggregate([
+      { $unwind: '$orderItems' },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'orderItems.product',
+          foreignField: '_id',
+          as: 'productDetail',
+        },
+      },
+      { $unwind: '$productDetail' },
+      {
+        $group: {
+          _id: '$productDetail.name',
+          totalRevenue: {
+            $sum: {
+              $multiply: ['$orderItems.quantity', '$productDetail.price'],
+            },
+          },
+          totalSold: { $sum: '$orderItems.quantity' },
+        },
+      },
+      { $sort: { totalRevenue: -1 } },
+      {
+        $project: {
+          _id: 0,
+          productName: '$_id',
+          totalRevenue: 1,
+          totalSold: 1,
+        },
+      },
+    ]);
+
+    return result;
+  };
+
+  static downloadMostProfitableProduct = async (res: Response) => {
+    const result = await this.getMostProfitableProduct();
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.forEach((r) => csvStream.write(r));
+
+    csvStream.end();
+  };
 }
