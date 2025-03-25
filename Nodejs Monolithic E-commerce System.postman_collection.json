@@ -379,12 +379,19 @@
 							"script": {
 								"exec": [
 									"const resBody = pm.response.json();",
-									"if(resBody[0]) {",
+									"if(resBody && resBody[0]) {",
 									"    pm.environment.set(\"product_id\", resBody[0].id);    ",
 									"}"
 								],
 								"type": "text/javascript",
 								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [],
+								"type": "text/javascript"
 							}
 						}
 					],
@@ -609,7 +616,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    // \"name\" : \"{{$randomProductName}}\",\n    // \"description\" : \"{{$randomLoremParagraph}}\",\n    // \"price\" : 120,\n    \"stockQuantity\" : 200\n    // \"categoryId\" : \"{{category_id}}\"\n}",
+							"raw": "{\n    // \"name\" : \"{{$randomProductName}}\",\n    // \"description\" : \"{{$randomLoremParagraph}}\",\n    // \"price\" : 120,\n    \"stockQuantity\" : 2000\n    // \"categoryId\" : \"{{category_id}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
