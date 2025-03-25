@@ -17,6 +17,7 @@ const envSchema = z.object({
   STRIPE_WEBHOOK_SECRET: z.string(),
   NODEMAILER_EMAIL_USER: z.string(),
   NODEMAILER_EMAIL_PASS: z.string(),
+  REDIS_SERVER_URL: z.string(),
   APP_URL: z.string().default('http://localhost:3000'),
 });
 
@@ -35,6 +36,9 @@ export const envConfig = {
   },
   database: {
     connectionStr: envVars.data.MONGODB_URI,
+  },
+  redis: {
+    connectionStr: envVars.data.REDIS_SERVER_URL,
   },
   jwt: {
     secretKey: envVars.data.JWT_SECRET,

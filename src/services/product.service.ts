@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { InputProduct } from '@/schemas/product.schema';
 import { Inventory } from '@/models/inventory.model';
 import { ProductImageService } from './productImage.service';
+import { deleteValue, getValue, setKey, updateValue } from '@/utils/redis';
 
 export class ProductService {
   static create = async (input: InputProduct) => {
@@ -21,6 +22,10 @@ export class ProductService {
       stock: product.stockQuantity,
     });
 
+    // Clear the cache to get newly updated value
+    const cacheKey = ['products'];
+    await deleteValue({ key: cacheKey });
+
     return product;
   };
 
@@ -29,6 +34,15 @@ export class ProductService {
     if (!product) {
       throw new NotFoundError(`Product with ID ${id} not found`);
     }
+    const cacheKey = ['products', id];
+
+    const cachedValue = await getValue({ key: cacheKey });
+    if (cachedValue) {
+      return cachedValue;
+    }
+
+    // Set the value in the cache
+    await setKey({ key: cacheKey, value: product });
     return product;
   };
 
@@ -40,10 +54,36 @@ export class ProductService {
 
     const images = await ProductImageService.getAllByProductId(product.id);
 
+    const cacheKey = ['products', 'images', id];
+
+    const cachedValue = await getValue({ key: cacheKey });
+    if (cachedValue) {
+      return cachedValue;
+    }
+
+    // Set the value in the cache
+    await setKey({
+      key: cacheKey,
+      value: { ...product.toJSON(), images: images ?? [] },
+    });
+
     return { ...product.toJSON(), images: images ?? [] };
   };
 
   static getAll = async () => {
+    const cacheKey = ['products'];
+
+    const cachedValue = await getValue({ key: cacheKey });
+    if (cachedValue) {
+      return cachedValue;
+    }
+    const products = await Product.find();
+
+    // Set the value in the cache
+    await setKey({
+      key: cacheKey,
+      value: products,
+    });
     return await Product.find();
   };
 
@@ -69,6 +109,14 @@ export class ProductService {
       stock: product.stockQuantity,
     });
 
+    const cacheKey = ['products'];
+    const cacheKeyById = ['products', id];
+    const cacheKeyWithImages = ['products', 'images', id];
+    // Update the cache
+    await updateValue({ key: cacheKeyById, newValue: product });
+    await updateValue({ key: cacheKeyWithImages, newValue: product });
+    await deleteValue({ key: cacheKey });
+
     return product;
   };
 
@@ -91,6 +139,13 @@ export class ProductService {
         throw new NotFoundError(`Inventory not found`);
       }
     }
+
+    const cacheKey = ['products'];
+    const cacheKeyById = ['products', id];
+    const cacheKeyWithImages = ['products', 'images', id];
+    await deleteValue({ key: cacheKey });
+    await deleteValue({ key: cacheKeyById });
+    await deleteValue({ key: cacheKeyWithImages });
   };
 
   static checkProductQuantityIsValid = async (id: string, quantity: number) => {
